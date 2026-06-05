@@ -18,7 +18,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
-  const { signIn, signInWithGoogle } = useAuth();
+  const { signIn } = useAuth();
   const { toast } = useToast();
   const {
     register,
@@ -47,16 +47,6 @@ function LoginForm() {
     }
   };
 
-  const handleGoogle = async () => {
-    try {
-      const cred = await signInWithGoogle();
-      toast("Signed in with Google");
-      await navigateAfterLogin(cred.uid);
-    } catch {
-      toast("Google sign-in failed", "error");
-    }
-  };
-
   return (
     <div className="mx-auto max-w-md px-4 py-12">
       <div className="mb-8 flex justify-center">
@@ -82,14 +72,6 @@ function LoginForm() {
             Sign In
           </Button>
         </form>
-        <div className="my-4 flex items-center gap-4">
-          <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
-          <span className="text-sm text-gray-500">OR</span>
-          <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
-        </div>
-        <Button variant="outline" className="w-full" onClick={handleGoogle}>
-          Continue with Google
-        </Button>
         <p className="mt-6 text-center text-sm text-gray-500">
           New to {BRAND_NAME}?{" "}
           <Link href="/register" className="text-primary hover:underline">

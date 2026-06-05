@@ -65,9 +65,13 @@ npx ts-node scripts/seed.ts
 ```
 
 This creates:
-- 3 categories (Electronics, Fashion, Home & Kitchen)
-- 20 sample products
+- 8 categories, 53 products (with local images)
+- 12 customer users, 31 orders, 38 reviews, 30 wishlist items
 - 1 admin user
+
+**Test logins after seed:**
+- Admin: `admin@example.com` / `Admin@123456` (or your `ADMIN_SEED_*` env vars)
+- Customer: `priya.sharma@example.com` / `Customer@123456` (any `@example.com` customer from seed)
 
 ### 5. Stripe webhook (local)
 

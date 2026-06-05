@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { getAllOrdersAdmin, updateOrderStatus } from "@/lib/firestore";
+import { useTablePagination } from "@/hooks/useTablePagination";
 import { Order, OrderStatus } from "@/types";
 import { DataTable } from "@/components/admin/DataTable";
 import { Badge } from "@/components/ui/Badge";
@@ -37,11 +38,29 @@ function AdminOrdersContent() {
   const [selected, setSelected] = useState<Order | null>(null);
   const [newStatus, setNewStatus] = useState<OrderStatus>("processing");
   const [trackingNumber, setTrackingNumber] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const {
+    pageData: pagedOrders,
+    page,
+    totalPages,
+    from,
+    to,
+    total,
+    setPage,
+    resetPage,
+  } = useTablePagination(orders, 15);
 
   const loadOrders = () => {
+    setLoading(true);
     getAllOrdersAdmin(
       statusFilter ? (statusFilter as OrderStatus) : undefined
-    ).then(setOrders);
+    )
+      .then((data) => {
+        setOrders(data);
+        resetPage();
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -113,12 +132,22 @@ function AdminOrdersContent() {
         />
       </div>
 
-      <DataTable
-        columns={columns}
-        data={orders}
-        keyExtractor={(o) => o.id}
-        onRowClick={setSelected}
-      />
+      {loading ? (
+        <p className="text-sm text-muted">Loading orders...</p>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={pagedOrders}
+          keyExtractor={(o) => o.id}
+          onRowClick={setSelected}
+          page={page}
+          totalPages={totalPages}
+          from={from}
+          to={to}
+          total={total}
+          onPageChange={setPage}
+        />
+      )}
 
       {selected && (
         <>

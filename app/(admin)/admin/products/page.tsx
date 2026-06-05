@@ -5,11 +5,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import {
-  getAllProductsAdmin,
+  getAllProductsAdminFull,
   createProduct,
   updateProduct,
   deleteProduct,
 } from "@/lib/firestore";
+import { useTablePagination } from "@/hooks/useTablePagination";
 import { uploadImage } from "@/lib/upload";
 import { PLACEHOLDER_IMAGE } from "@/lib/utils";
 import { Product } from "@/types";
@@ -31,6 +32,18 @@ export default function AdminProductsPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const {
+    pageData: pagedProducts,
+    page,
+    totalPages,
+    from,
+    to,
+    total,
+    setPage,
+    resetPage,
+  } = useTablePagination(products, 15);
 
   const {
     register,
@@ -40,7 +53,13 @@ export default function AdminProductsPage() {
   } = useForm<ProductInput>({ resolver: zodResolver(productSchema) });
 
   const loadProducts = () => {
-    getAllProductsAdmin(50).then(({ products: p }) => setProducts(p));
+    setLoading(true);
+    getAllProductsAdminFull()
+      .then((p) => {
+        setProducts(p);
+        resetPage();
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -235,11 +254,21 @@ export default function AdminProductsPage() {
         </Button>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={products}
-        keyExtractor={(p) => p.id}
-      />
+      {loading ? (
+        <p className="text-sm text-muted">Loading products...</p>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={pagedProducts}
+          keyExtractor={(p) => p.id}
+          page={page}
+          totalPages={totalPages}
+          from={from}
+          to={to}
+          total={total}
+          onPageChange={setPage}
+        />
+      )}
 
       <Modal
         isOpen={modalOpen}

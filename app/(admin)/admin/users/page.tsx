@@ -9,6 +9,7 @@ import { Select } from "@/components/ui/Select";
 import { useToast } from "@/components/ui/Toast";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/Input";
+import { useTablePagination } from "@/hooks/useTablePagination";
 
 export default function AdminUsersPage() {
   const { toast } = useToast();
@@ -33,6 +34,21 @@ export default function AdminUsersPage() {
       u.email.toLowerCase().includes(search.toLowerCase()) ||
       u.displayName.toLowerCase().includes(search.toLowerCase())
   );
+
+  const {
+    pageData: pagedUsers,
+    page,
+    totalPages,
+    from,
+    to,
+    total,
+    setPage,
+    resetPage,
+  } = useTablePagination(filtered, 15);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
 
   const handleRoleChange = async (uid: string, role: string) => {
     try {
@@ -116,8 +132,14 @@ export default function AdminUsersPage() {
       ) : (
         <DataTable
           columns={columns}
-          data={filtered}
+          data={pagedUsers}
           keyExtractor={(u) => u.uid}
+          page={page}
+          totalPages={totalPages}
+          from={from}
+          to={to}
+          total={total}
+          onPageChange={setPage}
         />
       )}
     </div>

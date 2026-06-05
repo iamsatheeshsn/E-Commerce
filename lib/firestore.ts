@@ -497,25 +497,49 @@ export async function getRelatedProducts(
 export async function getAllProductsAdmin(
   pageSize = 20,
   cursor?: QueryDocumentSnapshot<DocumentData>
-): Promise<{ products: Product[]; lastDoc: QueryDocumentSnapshot<DocumentData> | null }> {
+): Promise<{
+  products: Product[];
+  lastDoc: QueryDocumentSnapshot<DocumentData> | null;
+  hasMore: boolean;
+}> {
+  const database = assertDb();
+  const fetchSize = pageSize + 1;
   let q = query(
-    collection(db, "products"),
+    collection(database, "products"),
     orderBy("createdAt", "desc"),
-    limit(pageSize)
+    limit(fetchSize)
   );
   if (cursor) {
     q = query(
-      collection(db, "products"),
+      collection(database, "products"),
       orderBy("createdAt", "desc"),
       startAfter(cursor),
-      limit(pageSize)
+      limit(fetchSize)
     );
   }
   const snap = await getDocs(q);
+  const hasMore = snap.docs.length > pageSize;
+  const docs = hasMore ? snap.docs.slice(0, pageSize) : snap.docs;
   return {
-    products: snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Product),
-    lastDoc: snap.docs[snap.docs.length - 1] || null,
+    products: docs.map((d) => ({ id: d.id, ...d.data() }) as Product),
+    lastDoc: docs.length > 0 ? docs[docs.length - 1]! : null,
+    hasMore,
   };
+}
+
+/** Load full admin product list (catalog-sized datasets). */
+export async function getAllProductsAdminFull(
+  max = 500
+): Promise<Product[]> {
+  const database = assertDb();
+  const snap = await getDocs(
+    query(
+      collection(database, "products"),
+      orderBy("createdAt", "desc"),
+      limit(max)
+    )
+  );
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Product);
 }
 
 export async function createProduct(
@@ -622,20 +646,42 @@ export function subscribeOrder(
 }
 
 export async function getAllOrdersAdmin(
-  statusFilter?: OrderStatus
+  statusFilter?: OrderStatus,
+  max = 500
 ): Promise<Order[]> {
-  let q;
-  if (statusFilter) {
-    q = query(
-      collection(db, "orders"),
-      where("status", "==", statusFilter),
-      orderBy("createdAt", "desc")
+  const database = assertDb();
+  try {
+    let q;
+    if (statusFilter) {
+      q = query(
+        collection(database, "orders"),
+        where("status", "==", statusFilter),
+        orderBy("createdAt", "desc"),
+        limit(max)
+      );
+    } else {
+      q = query(
+        collection(database, "orders"),
+        orderBy("createdAt", "desc"),
+        limit(max)
+      );
+    }
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Order);
+  } catch (error) {
+    console.warn("Orders admin query failed, using fallback.", error);
+    const snap = await getDocs(
+      query(collection(database, "orders"), limit(max))
     );
-  } else {
-    q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+    let orders = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Order);
+    if (statusFilter) {
+      orders = orders.filter((o) => o.status === statusFilter);
+    }
+    return orders.sort(
+      (a, b) =>
+        (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0)
+    );
   }
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Order);
 }
 
 export async function updateOrderStatus(

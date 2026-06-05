@@ -11,6 +11,7 @@ import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
 import { format } from "date-fns";
 import { Trash2 } from "lucide-react";
+import { useTablePagination } from "@/hooks/useTablePagination";
 
 export default function AdminReviewsPage() {
   const { toast } = useToast();
@@ -18,10 +19,24 @@ export default function AdminReviewsPage() {
   const [deleteTarget, setDeleteTarget] = useState<Review | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const {
+    pageData: pagedReviews,
+    page,
+    totalPages,
+    from,
+    to,
+    total,
+    setPage,
+    resetPage,
+  } = useTablePagination(reviews, 15);
+
   const load = () => {
     setLoading(true);
     getAllReviews()
-      .then(setReviews)
+      .then((data) => {
+        setReviews(data);
+        resetPage();
+      })
       .finally(() => setLoading(false));
   };
 
@@ -118,8 +133,14 @@ export default function AdminReviewsPage() {
       ) : (
         <DataTable
           columns={columns}
-          data={reviews}
+          data={pagedReviews}
           keyExtractor={(r) => r.id}
+          page={page}
+          totalPages={totalPages}
+          from={from}
+          to={to}
+          total={total}
+          onPageChange={setPage}
         />
       )}
 
