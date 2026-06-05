@@ -1,0 +1,10 @@
+rules_version = '2';
+// Product/category images are stored on the local server (public/uploads).
+// Firebase Storage is not used for uploads in this app.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -34,3 +34,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# User-uploaded images (keep folder structure)
+/public/uploads/*
+!/public/uploads/.gitkeep
+!/public/uploads/defaults/
+!/public/uploads/seed/
+!/public/uploads/seed/

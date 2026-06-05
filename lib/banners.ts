@@ -1,0 +1,58 @@
+import type { HeroSlide } from "@/components/home/HeroSlider";
+
+export const HERO_SLIDES: HeroSlide[] = [
+  {
+    id: "summer-sale",
+    title: "Summer Mega Sale",
+    subtitle: "Up to 60% off on fashion, electronics & home essentials.",
+    cta: "Shop Deals",
+    href: "/products",
+    image: "/uploads/seed/banners/summer-sale.jpg",
+    gradient: "from-teal-900/85 via-primary-dark/75 to-slate-900/80",
+  },
+  {
+    id: "tech-deals",
+    title: "Latest Tech Arrivals",
+    subtitle: "Smartphones, laptops & wearables at unbeatable prices.",
+    cta: "Explore Tech",
+    href: "/products?category=Electronics",
+    image: "/uploads/seed/banners/tech-deals.jpg",
+    gradient: "from-slate-900/85 via-cyan-900/70 to-slate-900/80",
+  },
+  {
+    id: "fashion-week",
+    title: "Fashion Week Special",
+    subtitle: "Trending styles from top brands — new season collection.",
+    cta: "Shop Fashion",
+    href: "/products?category=Fashion",
+    image: "/uploads/seed/banners/fashion-week.jpg",
+    gradient: "from-rose-900/80 via-accent/60 to-slate-900/85",
+  },
+  {
+    id: "home-essentials",
+    title: "Home & Living",
+    subtitle: "Transform your space with curated home & kitchen picks.",
+    cta: "Browse Home",
+    href: "/products?category=Home%20%26%20Kitchen",
+    image: "/uploads/seed/banners/home-essentials.jpg",
+    gradient: "from-emerald-900/80 via-primary/65 to-slate-900/85",
+  },
+  {
+    id: "beauty-glow",
+    title: "Beauty & Wellness",
+    subtitle: "Skincare, makeup & self-care from trusted brands.",
+    cta: "Shop Beauty",
+    href: "/products?category=Beauty",
+    image: "/uploads/seed/banners/beauty-glow.jpg",
+    gradient: "from-pink-900/80 via-rose-800/65 to-slate-900/85",
+  },
+  {
+    id: "sports-fitness",
+    title: "Sports & Fitness",
+    subtitle: "Gear up with gym equipment, sportswear & outdoor essentials.",
+    cta: "Get Active",
+    href: "/products?category=Sports%20%26%20Fitness",
+    image: "/uploads/seed/banners/sports-fitness.jpg",
+    gradient: "from-orange-900/80 via-amber-800/60 to-slate-900/85",
+  },
+];
